@@ -17,43 +17,64 @@ public class TaskService {
     private TaskRepo taskRepo;
 
     public ResponseEntity<?> addTask(Task task) {
-        Task task1 = taskRepo.save(task);
-        return new ResponseEntity<>(task1, HttpStatus.OK);
+        try{
+            Task task1 = taskRepo.save(task);
+            return new ResponseEntity<>(task1, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.NOT_FOUND);
+        }
+
     }
 
     public ResponseEntity<?> getAllTask() {
-        return new ResponseEntity<>(taskRepo.findAll(),HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(taskRepo.findAll(),HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.NOT_FOUND);
+        }
     }
 
     public ResponseEntity<?> getTaskById(Integer id) {
-        Optional<Task> task = taskRepo.findById(id);
-        if(task.isPresent()){
-            return new ResponseEntity<>(task.get(),HttpStatus.OK);
+        try{
+            Optional<Task> task = taskRepo.findById(id);
+            if(task.isPresent()){
+                return new ResponseEntity<>(task.get(),HttpStatus.OK);
+            }
+            return new ResponseEntity<>("Invalid id",HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("Invalid id",HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<?> deleteTaskById(Integer id) {
-        Optional<Task> task = taskRepo.findById(id);
-        if(task.isPresent()){
-            taskRepo.delete(task.get());
-            return new ResponseEntity<>("Task deleted",HttpStatus.OK);
+        try{
+            Optional<Task> task = taskRepo.findById(id);
+            if(task.isPresent()){
+                taskRepo.delete(task.get());
+                return new ResponseEntity<>("Task deleted",HttpStatus.OK);
+            }
+            return new ResponseEntity<>("Invalid id",HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("Invalid id",HttpStatus.BAD_REQUEST);
 
     }
 
     public ResponseEntity<?> updateTaskById(Integer id, String name) {
-        Optional<Task> task = taskRepo.findById(id);
-        if(task.isPresent()){
-            Task task1 = new Task();
-            task1=task.get();
-            if(name!=null){
-                task1.setTaskName(name);
+        try{
+            Optional<Task> task = taskRepo.findById(id);
+            if(task.isPresent()){
+                Task task1 = new Task();
+                task1=task.get();
+                if(name!=null){
+                    task1.setTaskName(name);
+                }
+                taskRepo.save(task1);
+                return new ResponseEntity<>("Task Updated",HttpStatus.OK);
             }
-            taskRepo.save(task1);
-            return new ResponseEntity<>("Task Updated",HttpStatus.OK);
+            return new ResponseEntity<>("Invalid id",HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            return new ResponseEntity<>(e.toString(),HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("Invalid id",HttpStatus.BAD_REQUEST);
     }
 }
